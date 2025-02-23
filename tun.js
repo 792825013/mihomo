@@ -48,7 +48,7 @@ const STATIC_CONFIGS = {
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
     'fake-ip-filter': ['*', '+.lan', '+.local', '+.youku.com'],
-    'default-nameserver': ['223.5.5.5', '114.114.114.114'], // 快速默认 DNS
+    'default-nameserver': ['223.5.5.5', '114.114.114.114', '119.29.29.29'], // 快速默认 DNS
     nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
     fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
     'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
