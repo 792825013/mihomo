@@ -38,13 +38,13 @@ const STATIC_CONFIGS = {
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
     'fake-ip-filter': ['*', '+.lan', '+.local', '+.market.xiaomi.com'],
-    nameserver: ['tls://223.5.5.5', 'tls://119.29.29.29'],
-    fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
+    nameserver: ['223.5.5.5', '119.29.29.29'],
+    fallback: ['8.8.8.8', '1.1.1.1'],
     'proxy-server-nameserver': ['tls://223.5.5.5', 'tls://119.29.29.29'],
     'nameserver-policy': {
       'geosite:private': 'system',
       'geosite:cn': ['223.5.5.5', '119.29.29.29'],
-      'geosite:gfw': ['tls://8.8.8.8', 'tls://1.1.1.1']
+      'geosite:geolocation-!cn': ['8.8.8.8', '1.1.1.1']
     }
   },
   sniffer: {
