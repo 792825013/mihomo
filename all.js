@@ -38,12 +38,12 @@ const STATIC_CONFIGS = {
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
     'fake-ip-filter': ['*', '+.lan', '+.local', '+.market.xiaomi.com'],
-    nameserver: ['223.5.5.5', '119.29.29.29'], // 国内不加密，速度快
+    nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'], // 国内不加密，速度快
     fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'], // 国外加密，备用
     'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'], // 代理用国外加密DNS
     'nameserver-policy': {
     'geosite:private': 'system',          // 本地不加密
-    'geosite:cn': ['223.5.5.5', '119.29.29.29'], // 国内不加密
+    'geosite:cn': ['223.5.5.5', '119.29.29.29', '114.114.114.114'], // 国内不加密
     'geosite:geolocation-!cn': ['tls://8.8.8.8', 'tls://1.1.1.1'] // 国外加密
     }
   },
@@ -85,7 +85,7 @@ const REGION_LOOKUP = new Map(
     ...STATIC_CONFIGS.proxyGroupDefault,
     name: region.name,
     type: 'url-test',
-    tolerance: 50,
+    tolerance: 100,
     icon: region.icon,
     proxies: [],
     regex: region.regex
