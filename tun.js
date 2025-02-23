@@ -1,5 +1,5 @@
 /**
- * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，TUN 模式，VLESS 和 Hysteria2，适配中国家用网络）
+ * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，TUN 模式优化，VLESS 和 Hysteria2）
  * 当前日期: 2025年2月23日
  */
 
@@ -18,7 +18,7 @@ const STATIC_CONFIGS = {
   base: {
     'allow-lan': true,
     'bind-address': '127.0.0.1',
-    mode: 'rule', // 保持 rule，TUN 在 tun 字段启用
+    mode: 'rule',
     profile: { 'store-selected': true },
     'unified-delay': true,
     'tcp-concurrent': true,
@@ -28,12 +28,15 @@ const STATIC_CONFIGS = {
     'geodata-loader': 'standard',
     'geo-auto-update': true,
     'geo-update-interval': 168,
-    tun: { // 启用 TUN 模式
+    tun: {
       enable: true,
-      stack: 'system', // Windows 用 system，Mac/Linux 可选 gvisor
-      'auto-route': true, // 自动路由所有流量
-      'auto-detect-interface': true, // 自动选择网络接口
-      'dns-hijack': ['any:53'] // 劫持所有 DNS 请求
+      stack: 'system',
+      'auto-route': true,
+      'auto-detect-interface': true,
+      'dns-hijack': ['any:53'],
+      mtu: 1400, // 调低 MTU，减少分片
+      'strict-route': false,
+      'endpoint-independent-nat': true // 优化 NAT，提升性能
     }
   },
   dns: {
@@ -42,9 +45,9 @@ const STATIC_CONFIGS = {
     ipv6: false,
     'prefer-h3': true,
     'use-hosts': true,
-    'enhanced-mode': 'fake-ip', // TUN 下 Fake-IP 更安全
+    'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
-    'fake-ip-filter': ['*', '+.lan', '+.local', '+.youku.com'], // 跳过优酷
+    'fake-ip-filter': ['*', '+.lan', '+.local', '+.youku.com'],
     nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
     fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
     'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
@@ -105,13 +108,12 @@ function main(config) {
   }
   config.proxies = config.proxies || [];
 
-  // 筛选 VLESS 和 Hysteria2 安全节点
   config.proxies = config.proxies.filter(proxy => {
     const type = proxy.type.toLowerCase();
     if (type === 'vless') {
-      return proxy.tls === true || proxy.network === 'tls'; // 只保留带 TLS 的 VLESS
+      return proxy.tls === true || proxy.network === 'tls';
     } else if (type === 'hysteria2') {
-      return true; // Hysteria2 默认安全
+      return true;
     }
     return false;
   });
