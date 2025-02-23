@@ -1,5 +1,5 @@
 /**
- * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，TUN 模式优化，VLESS 和 Hysteria2）
+ * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，TUN 模式，DNS 优化，VLESS 和 Hysteria2）
  * 当前日期: 2025年2月23日
  */
 
@@ -34,9 +34,9 @@ const STATIC_CONFIGS = {
       'auto-route': true,
       'auto-detect-interface': true,
       'dns-hijack': ['any:53'],
-      mtu: 1400, // 调低 MTU，减少分片
+      mtu: 1400, // 优化 MTU
       'strict-route': false,
-      'endpoint-independent-nat': true // 优化 NAT，提升性能
+      'endpoint-independent-nat': true
     }
   },
   dns: {
@@ -48,6 +48,7 @@ const STATIC_CONFIGS = {
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
     'fake-ip-filter': ['*', '+.lan', '+.local', '+.youku.com'],
+    'default-nameserver': ['223.5.5.5', '114.114.114.114'], // 快速默认 DNS
     nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
     fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
     'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
@@ -55,7 +56,9 @@ const STATIC_CONFIGS = {
       'geosite:private': 'system',
       'geosite:cn': ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
       'geosite:geolocation-!cn': ['tls://8.8.8.8', 'tls://1.1.1.1']
-    }
+    },
+    'dns-cache': true, // 启用 DNS 缓存
+    'dns-cache-ttl': 3600 // 缓存 1 小时
   },
   sniffer: {
     enable: false
