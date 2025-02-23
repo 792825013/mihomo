@@ -48,7 +48,7 @@ const STATIC_CONFIGS = {
     }
   },
   sniffer: {
-    enable: true,
+    enable: false,
     'force-dns-mapping': true,
     'parse-pure-ip': true,
     sniff: {
