@@ -1,5 +1,5 @@
 /**
- * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，适配中国家用网络）
+ * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，适配中国家用网络，优酷直连）
  * 当前日期: 2025年2月23日
  */
 
@@ -37,14 +37,14 @@ const STATIC_CONFIGS = {
     'use-hosts': true,
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
-    'fake-ip-filter': ['*', '+.lan', '+.local', '+.market.xiaomi.com'],
-    nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'], // 国内不加密，速度快
-    fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'], // 国外加密，备用
-    'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'], // 代理用国外加密DNS
+    'fake-ip-filter': ['*', '+.lan', '+.local', '+.market.xiaomi.com', '+.youku.com'], // 加优酷
+    nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
+    fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
+    'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
     'nameserver-policy': {
-    'geosite:private': 'system',          // 本地不加密
-    'geosite:cn': ['223.5.5.5', '119.29.29.29', '114.114.114.114'], // 国内不加密
-    'geosite:geolocation-!cn': ['tls://8.8.8.8', 'tls://1.1.1.1'] // 国外加密
+      'geosite:private': 'system',
+      'geosite:cn': ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
+      'geosite:geolocation-!cn': ['tls://8.8.8.8', 'tls://1.1.1.1']
     }
   },
   sniffer: {
@@ -56,7 +56,7 @@ const STATIC_CONFIGS = {
       HTTP: { ports: [80] },
       QUIC: { ports: [443] }
     },
-    'skip-domain': ['Mijia Cloud', '+.oray.com', '+.baidu.com', '+.taobao.com']
+    'skip-domain': ['Mijia Cloud', '+.oray.com', '+.baidu.com', '+.taobao.com', '+.youku.com'] // 加优酷
   },
   proxyGroupDefault: {
     interval: 300,
@@ -67,11 +67,12 @@ const STATIC_CONFIGS = {
     'max-failed-times': 3
   },
   defaultRules: [
+    'DOMAIN-SUFFIX,youku.com,DIRECT', // 明确优酷直连
     'GEOSITE,private,DIRECT',
     'GEOIP,private,DIRECT,no-resolve',
     'GEOSITE,cn,DIRECT',
     'GEOIP,cn,DIRECT,no-resolve',
-    'MATCH,SG新加坡'                    // 默认走新加坡
+    'MATCH,SG新加坡'
   ],
   geoxUrl: {
     geoip: 'https://github.com/Loyalsoldier/geoip/releases/latest/download/geoip-only-cn-private.dat',
@@ -101,29 +102,24 @@ const MATCH_CACHE = new Map();
  * @returns {Object} 处理后的配置对象
  */
 function main(config) {
-  // 输入验证
   if (!config || (!config.proxies?.length && !config['proxy-providers'])) {
     throw new Error('配置文件中未找到任何代理');
   }
   config.proxies = config.proxies || [];
 
-  // 合并基础配置
   Object.assign(config, STATIC_CONFIGS.base, {
     dns: STATIC_CONFIGS.dns,
     sniffer: STATIC_CONFIGS.sniffer,
     'geox-url': STATIC_CONFIGS.geoxUrl
   });
 
-  // 提取代理名称并分组
   const proxyNames = config.proxies.map(p => p.name);
   const otherNodes = new Set(proxyNames);
   const regionGroups = [];
 
-  // 初始化地区分组
   const regionMap = new Map();
   REGION_LOOKUP.forEach((group, key) => regionMap.set(key, { ...group, proxies: [] }));
 
-  // 单次遍历分组，使用缓存优化正则匹配
   for (const name of proxyNames) {
     let matchedRegion = MATCH_CACHE.get(name);
     if (!matchedRegion) {
@@ -141,26 +137,24 @@ function main(config) {
     }
   }
 
-  // 收集有效地区组
   for (const [_, group] of regionMap) {
     if (group.proxies.length) {
       regionGroups.push(group);
     }
   }
 
-  // 构建代理组
   const proxyGroups = [{
     ...STATIC_CONFIGS.proxyGroupDefault,
     name: 'GLOBAL',
     type: 'select',
     proxies: [
-      'SG新加坡',                       // 优先新加坡
-      ...(otherNodes.size ? ['其他节点'] : []) // 未分组节点
+      'SG新加坡',
+      '直连', // 加回直连选项
+      ...(otherNodes.size ? ['其他节点'] : [])
     ],
     icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Proxy.png'
   }, ...regionGroups];
 
-  // 添加其他节点组（未分组的代理）
   if (otherNodes.size) {
     proxyGroups.push({
       ...STATIC_CONFIGS.proxyGroupDefault,
@@ -171,7 +165,6 @@ function main(config) {
     });
   }
 
-  // 更新配置
   config.proxies.push({ name: '直连', type: 'direct', udp: true });
   config['proxy-groups'] = proxyGroups;
   config.rules = STATIC_CONFIGS.defaultRules;
