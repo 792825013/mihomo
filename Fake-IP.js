@@ -1,5 +1,5 @@
 /**
- * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，适配中国家用网络）
+ * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，VLESS 和 Hysteria2 协议，适配中国家用网络）
  * 当前日期: 2025年2月23日
  */
 
@@ -19,7 +19,7 @@ const STATIC_CONFIGS = {
     'allow-lan': true,
     'bind-address': '127.0.0.1',
     mode: 'rule',
-    profile: { 'store-selected': true, 'store-fake-ip': true },
+    profile: { 'store-selected': true },
     'unified-delay': true,
     'tcp-concurrent': true,
     'keep-alive-interval': 300,
@@ -35,9 +35,9 @@ const STATIC_CONFIGS = {
     ipv6: false,
     'prefer-h3': true,
     'use-hosts': true,
-    'enhanced-mode': 'fake-ip',
+    'enhanced-mode': 'fake-ip', // 加回 Fake-IP
     'fake-ip-range': '198.18.0.1/16',
-    'fake-ip-filter': ['*', '+.lan', '+.local', '+.market.xiaomi.com', '+.youku.com'], // 保留优酷过滤
+    'fake-ip-filter': ['*', '+.lan', '+.local', '+.youku.com'], // 跳过优酷
     nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
     fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
     'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
@@ -48,15 +48,7 @@ const STATIC_CONFIGS = {
     }
   },
   sniffer: {
-    enable: true,
-    'force-dns-mapping': true,
-    'parse-pure-ip': true,
-    sniff: {
-      TLS: { ports: [443] },
-      HTTP: { ports: [80] },
-      QUIC: { ports: [443] }
-    },
-    'skip-domain': ['Mijia Cloud', '+.oray.com', '+.baidu.com', '+.taobao.com', '+.youku.com'] // 保留优酷跳过
+    enable: false
   },
   proxyGroupDefault: {
     interval: 300,
@@ -69,7 +61,7 @@ const STATIC_CONFIGS = {
   defaultRules: [
     'GEOSITE,private,DIRECT',
     'GEOIP,private,DIRECT,no-resolve',
-    'GEOSITE,cn,DIRECT',           // 优酷靠这个直连
+    'GEOSITE,cn,DIRECT',
     'GEOIP,cn,DIRECT,no-resolve',
     'MATCH,SG新加坡'
   ],
@@ -96,7 +88,7 @@ const REGION_LOOKUP = new Map(
 const MATCH_CACHE = new Map();
 
 /**
- * 主函数：高效生成 Mihomo 兼容配置，主用新加坡分组
+ * 主函数：高效生成 Mihomo 兼容配置，主用新加坡分组，筛选 VLESS 和 Hysteria2
  * @param {Object} config 输入配置对象
  * @returns {Object} 处理后的配置对象
  */
@@ -105,6 +97,17 @@ function main(config) {
     throw new Error('配置文件中未找到任何代理');
   }
   config.proxies = config.proxies || [];
+
+  // 筛选 VLESS 和 Hysteria2 安全节点
+  config.proxies = config.proxies.filter(proxy => {
+    const type = proxy.type.toLowerCase();
+    if (type === 'vless') {
+      return proxy.tls === true || proxy.network === 'tls'; // 只保留带 TLS 的 VLESS
+    } else if (type === 'hysteria2') {
+      return true; // Hysteria2 默认安全
+    }
+    return false;
+  });
 
   Object.assign(config, STATIC_CONFIGS.base, {
     dns: STATIC_CONFIGS.dns,
@@ -148,7 +151,7 @@ function main(config) {
     type: 'select',
     proxies: [
       'SG新加坡',
-      '直连', // 保留直连选项
+      '直连',
       ...(otherNodes.size ? ['其他节点'] : [])
     ],
     icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Proxy.png'
