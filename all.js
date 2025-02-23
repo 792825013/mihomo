@@ -1,5 +1,5 @@
 /**
- * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，适配中国家用网络，优酷直连）
+ * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，适配中国家用网络）
  * 当前日期: 2025年2月23日
  */
 
@@ -37,7 +37,7 @@ const STATIC_CONFIGS = {
     'use-hosts': true,
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
-    'fake-ip-filter': ['*', '+.lan', '+.local', '+.market.xiaomi.com', '+.youku.com'], // 加优酷
+    'fake-ip-filter': ['*', '+.lan', '+.local', '+.market.xiaomi.com', '+.youku.com'], // 保留优酷过滤
     nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
     fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
     'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
@@ -56,7 +56,7 @@ const STATIC_CONFIGS = {
       HTTP: { ports: [80] },
       QUIC: { ports: [443] }
     },
-    'skip-domain': ['Mijia Cloud', '+.oray.com', '+.baidu.com', '+.taobao.com', '+.youku.com'] // 加优酷
+    'skip-domain': ['Mijia Cloud', '+.oray.com', '+.baidu.com', '+.taobao.com', '+.youku.com'] // 保留优酷跳过
   },
   proxyGroupDefault: {
     interval: 300,
@@ -67,10 +67,9 @@ const STATIC_CONFIGS = {
     'max-failed-times': 3
   },
   defaultRules: [
-    'DOMAIN-SUFFIX,youku.com,DIRECT', // 明确优酷直连
     'GEOSITE,private,DIRECT',
     'GEOIP,private,DIRECT,no-resolve',
-    'GEOSITE,cn,DIRECT',
+    'GEOSITE,cn,DIRECT',           // 优酷靠这个直连
     'GEOIP,cn,DIRECT,no-resolve',
     'MATCH,SG新加坡'
   ],
@@ -149,7 +148,7 @@ function main(config) {
     type: 'select',
     proxies: [
       'SG新加坡',
-      '直连', // 加回直连选项
+      '直连', // 保留直连选项
       ...(otherNodes.size ? ['其他节点'] : [])
     ],
     icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Proxy.png'
