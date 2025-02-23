@@ -155,7 +155,6 @@ function main(config) {
     type: 'select',
     proxies: [
       'SG新加坡',                       // 优先新加坡
-      '直连',                           // 改为直连选项
       ...(otherNodes.size ? ['其他节点'] : []) // 未分组节点
     ],
     icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Proxy.png'
