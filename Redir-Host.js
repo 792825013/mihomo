@@ -1,5 +1,5 @@
 /**
- * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，适配中国家用网络）
+ * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，VLESS 和 Hysteria2 协议，适配中国家用网络）
  * 当前日期: 2025年2月23日
  */
 
@@ -36,9 +36,9 @@ const STATIC_CONFIGS = {
     'prefer-h3': true,
     'use-hosts': true,
     'enhanced-mode': 'redir-host',
-    nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
-    fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
-    'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
+    nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'], // 国内不加密
+    fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'], // 国外加密
+    'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'], // 代理加密
     'nameserver-policy': {
       'geosite:private': 'system',
       'geosite:cn': ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
@@ -46,7 +46,7 @@ const STATIC_CONFIGS = {
     }
   },
   sniffer: {
-    enable: false // 精简嗅探配置
+    enable: false // 保持关闭
   },
   proxyGroupDefault: {
     interval: 300,
@@ -86,7 +86,7 @@ const REGION_LOOKUP = new Map(
 const MATCH_CACHE = new Map();
 
 /**
- * 主函数：高效生成 Mihomo 兼容配置，主用新加坡分组
+ * 主函数：高效生成 Mihomo 兼容配置，主用新加坡分组，筛选 VLESS 和 Hysteria2
  * @param {Object} config 输入配置对象
  * @returns {Object} 处理后的配置对象
  */
@@ -95,6 +95,19 @@ function main(config) {
     throw new Error('配置文件中未找到任何代理');
   }
   config.proxies = config.proxies || [];
+
+  // 筛选 VLESS 和 Hysteria2 安全节点
+  config.proxies = config.proxies.filter(proxy => {
+    const type = proxy.type.toLowerCase();
+    if (type === 'vless') {
+      // VLESS 需 TLS 加密
+      return proxy.tls === true || proxy.network === 'tls';
+    } else if (type === 'hysteria2') {
+      // Hysteria2 默认安全，直接保留
+      return true;
+    }
+    return false; // 其他协议过滤掉
+  });
 
   Object.assign(config, STATIC_CONFIGS.base, {
     dns: STATIC_CONFIGS.dns,
