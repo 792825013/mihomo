@@ -1,11 +1,12 @@
 /**
- * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，VLESS 和 Hysteria2 协议，适配中国家用网络）
- * 当前日期: 2025年2月23日
+ * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，新增日本分组，VLESS 和 Hysteria2 协议，适配中国家用网络）
+ * 当前日期: 2025年2月24日
  */
 
-/** 地区定义（精简，仅保留新加坡和中国） */
+/** 地区定义（新增日本，保留新加坡和中国） */
 const REGIONS = [
   ['SG新加坡', /新加坡|🇸🇬|sg|singapore/i, 'Singapore'],
+  ['JP日本', /日本|🇯🇵|jp|japan/i, 'Japan'], // 新增日本分组
   ['CN中国大陆', /中国|🇨🇳|cn|china|大陆/i, 'China_Map'],
 ].map(([name, regex, icon]) => ({
   name,
@@ -13,7 +14,7 @@ const REGIONS = [
   icon: `https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/${icon}.png`
 }));
 
-/** 静态配置集合（适配中国家用网络，主用新加坡） */
+/** 静态配置集合（适配中国家用网络，主用新加坡，新增日本支持） */
 const STATIC_CONFIGS = {
   base: {
     'allow-lan': true,
@@ -35,9 +36,9 @@ const STATIC_CONFIGS = {
     ipv6: false,
     'prefer-h3': true,
     'use-hosts': true,
-    'enhanced-mode': 'fake-ip', // 加回 Fake-IP
+    'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
-    'fake-ip-filter': ['*', '+.lan', '+.local', '+.youku.com'], // 跳过优酷
+    'fake-ip-filter': ['*', '+.lan', '+.local', '+.youku.com'],
     nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
     fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
     'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
@@ -63,7 +64,7 @@ const STATIC_CONFIGS = {
     'GEOIP,private,DIRECT,no-resolve',
     'GEOSITE,cn,DIRECT',
     'GEOIP,cn,DIRECT,no-resolve',
-    'MATCH,SG新加坡'
+    'MATCH,GLOBAL' // 修正为匹配 GLOBAL 分组
   ],
   geoxUrl: {
     geoip: 'https://github.com/Loyalsoldier/geoip/releases/latest/download/geoip-only-cn-private.dat',
@@ -88,7 +89,7 @@ const REGION_LOOKUP = new Map(
 const MATCH_CACHE = new Map();
 
 /**
- * 主函数：高效生成 Mihomo 兼容配置，主用新加坡分组，筛选 VLESS 和 Hysteria2
+ * 主函数：高效生成 Mihomo 兼容配置，主用新加坡分组，新增日本分组，筛选 VLESS 和 Hysteria2
  * @param {Object} config 输入配置对象
  * @returns {Object} 处理后的配置对象
  */
@@ -102,9 +103,9 @@ function main(config) {
   config.proxies = config.proxies.filter(proxy => {
     const type = proxy.type.toLowerCase();
     if (type === 'vless') {
-      return proxy.tls === true || proxy.network === 'tls'; // 只保留带 TLS 的 VLESS
+      return proxy.tls === true || proxy.network === 'tls';
     } else if (type === 'hysteria2') {
-      return true; // Hysteria2 默认安全
+      return true;
     }
     return false;
   });
@@ -151,6 +152,7 @@ function main(config) {
     type: 'select',
     proxies: [
       'SG新加坡',
+      'JP日本',
       '直连',
       ...(otherNodes.size ? ['其他节点'] : [])
     ],
