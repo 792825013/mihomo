@@ -1,6 +1,6 @@
 /**
  * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，VLESS 和 Hysteria2 协议，适配中国家用网络）
- * 当前日期: 2025年2月23日
+ * 当前日期: 2025年2月24日
  */
 
 /** 地区定义（精简，仅保留新加坡和中国） */
@@ -46,19 +46,21 @@ const STATIC_CONFIGS = {
     }
   },
   sniffer: {
-    enable: false // 保持关闭
+    enable: false
   },
   proxyGroupDefault: {
     interval: 300,
     timeout: 3000,
-    url: 'http://www.gstatic.com/generate_204',
-    'fallback-url': 'http://www.baidu.com',
+    url: 'https://www.google.com/generate_204', // 修改为 HTTPS
+    'fallback-url': 'https://www.gstatic.com/generate_204', // 修改为 HTTPS
     lazy: true,
     'max-failed-times': 3
   },
   defaultRules: [
     'GEOSITE,private,DIRECT',
     'GEOIP,private,DIRECT,no-resolve',
+    'DOMAIN,ads.google.com,REJECT', // 添加简单广告拦截
+    'DOMAIN,ad.doubleclick.net,REJECT',
     'GEOSITE,cn,DIRECT',
     'GEOIP,cn,DIRECT,no-resolve',
     'MATCH,SG新加坡'
@@ -85,28 +87,21 @@ const REGION_LOOKUP = new Map(
 /** 正则匹配缓存 */
 const MATCH_CACHE = new Map();
 
-/**
- * 主函数：高效生成 Mihomo 兼容配置，主用新加坡分组，筛选 VLESS 和 Hysteria2
- * @param {Object} config 输入配置对象
- * @returns {Object} 处理后的配置对象
- */
+/** 主函数 */
 function main(config) {
   if (!config || (!config.proxies?.length && !config['proxy-providers'])) {
     throw new Error('配置文件中未找到任何代理');
   }
   config.proxies = config.proxies || [];
 
-  // 筛选 VLESS 和 Hysteria2 安全节点
   config.proxies = config.proxies.filter(proxy => {
     const type = proxy.type.toLowerCase();
     if (type === 'vless') {
-      // VLESS 需 TLS 加密
       return proxy.tls === true || proxy.network === 'tls';
     } else if (type === 'hysteria2') {
-      // Hysteria2 默认安全，直接保留
       return true;
     }
-    return false; // 其他协议过滤掉
+    return false;
   });
 
   Object.assign(config, STATIC_CONFIGS.base, {
