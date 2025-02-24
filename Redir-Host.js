@@ -36,12 +36,12 @@ const STATIC_CONFIGS = {
     'prefer-h3': true,
     'use-hosts': true,
     'enhanced-mode': 'redir-host',
-    nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'], // 国内不加密
-    fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'], // 国外加密
-    'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'], // 代理加密
+    nameserver: ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query'],
+    fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
+    'proxy-server-nameserver': ['https://dns.alidns.com/dns-query', 'tls://1.1.1.1'],
     'nameserver-policy': {
       'geosite:private': 'system',
-      'geosite:cn': ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
+      'geosite:cn': ['https://dns.alidns.com/dns-query', 'https://doh.pub/dns-query'],
       'geosite:geolocation-!cn': ['tls://8.8.8.8', 'tls://1.1.1.1']
     }
   },
