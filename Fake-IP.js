@@ -1,9 +1,9 @@
 /**
- * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，新增日本分组，VLESS 和 Hysteria2 协议，适配中国家用网络）
+ * Clash Verge Rev / Mihomo Party 扩展脚本（个人优化版，主用新加坡分组，新增日本分组，VLESS 和 Hysteria2 协议，适配中国家用网络）
  * 当前日期: 2025年2月26日
  */
 
-/** 地区定义（仅保留新加坡和日本） */
+/** 地区定义（仅新加坡和日本） */
 const REGIONS = [
   ['SG新加坡', /新加坡|🇸🇬|sg|singapore/i, 'Singapore'],
   ['JP日本', /日本|🇯🇵|jp|japan/i, 'Japan'],
@@ -13,10 +13,9 @@ const REGIONS = [
   icon: `https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/${icon}.png`
 }));
 
-/** 静态配置集合（精简版，主用新加坡，适配中国家用网络） */
+/** 静态配置（个人使用精简版） */
 const STATIC_CONFIGS = {
   base: {
-    'allow-lan': true,
     mode: 'rule',
     'tcp-concurrent': true,
     'geo-auto-update': true,
@@ -26,7 +25,6 @@ const STATIC_CONFIGS = {
     enable: true,
     listen: ':1053',
     'enhanced-mode': 'fake-ip',
-    'fake-ip-range': '198.18.0.1/16',
     nameserver: ['223.5.5.5', '114.114.114.114'],
     fallback: ['tls://8.8.8.8'],
     'nameserver-policy': {
@@ -37,10 +35,10 @@ const STATIC_CONFIGS = {
   proxyGroupDefault: {
     interval: 300,
     timeout: 3000,
-    url: 'http://www.gstatic.com/generate_204',
-    lazy: true
+    url: 'http://www.gstatic.com/generate_204'
   },
   rules: [
+    'GEOIP,private,DIRECT,no-resolve',
     'GEOSITE,cn,DIRECT',
     'GEOIP,cn,DIRECT,no-resolve',
     'MATCH,GLOBAL'
@@ -51,15 +49,17 @@ const STATIC_CONFIGS = {
   }
 };
 
-/** 主函数：高效生成 Mihomo 兼容配置 */
+/** 主函数：生成 Mihomo 兼容配置 */
 function main(config) {
   if (!config?.proxies?.length) throw new Error('未找到代理节点');
 
-  // 筛选 VLESS 和 Hysteria2 安全节点
-  const proxies = config.proxies.filter(p => {
-    const type = p.type.toLowerCase();
-    return (type === 'vless' && p.tls) || type === 'hysteria2';
-  }).map(p => p.name);
+  // 筛选 VLESS 和 Hysteria2 节点
+  const proxies = config.proxies
+    .filter(p => {
+      const type = p.type.toLowerCase();
+      return (type === 'vless' && p.tls) || type === 'hysteria2';
+    })
+    .map(p => p.name);
 
   // 合并基础配置
   Object.assign(config, STATIC_CONFIGS.base, {
@@ -72,17 +72,18 @@ function main(config) {
     ...STATIC_CONFIGS.proxyGroupDefault,
     name: r.name,
     type: 'url-test',
-    tolerance: 100,
+    tolerance: 50, // 降低容差，加快切换
     icon: r.icon,
     proxies: proxies.filter(name => r.regex.test(name))
   })).filter(g => g.proxies.length);
 
   const otherNodes = proxies.filter(name => !REGIONS.some(r => r.regex.test(name)));
+  const globalProxies = regionGroups.length ? ['SG新加坡', 'JP日本'] : proxies;
   const proxyGroups = [{
     ...STATIC_CONFIGS.proxyGroupDefault,
     name: 'GLOBAL',
     type: 'select',
-    proxies: ['SG新加坡', 'JP日本', ...(otherNodes.length ? ['其他节点'] : [])],
+    proxies: [...globalProxies, ...(otherNodes.length ? ['其他节点'] : [])],
     icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Proxy.png'
   }, ...regionGroups];
 
@@ -97,6 +98,6 @@ function main(config) {
   }
 
   config['proxy-groups'] = proxyGroups;
-  config.rules = STATIC_CONFIGS.defaultRules;
+  config.rules = STATIC_CONFIGS.rules;
   return config;
 }
