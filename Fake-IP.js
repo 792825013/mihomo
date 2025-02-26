@@ -3,11 +3,10 @@
  * 当前日期: 2025年2月24日
  */
 
-/** 地区定义（新增日本，保留新加坡和中国） */
+/** 地区定义（仅保留新加坡和日本） */
 const REGIONS = [
   ['SG新加坡', /新加坡|🇸🇬|sg|singapore/i, 'Singapore'],
   ['JP日本', /日本|🇯🇵|jp|japan/i, 'Japan'], // 新增日本分组
-  ['CN中国大陆', /中国|🇨🇳|cn|china|大陆/i, 'China_Map'],
 ].map(([name, regex, icon]) => ({
   name,
   regex,
@@ -153,7 +152,6 @@ function main(config) {
     proxies: [
       'SG新加坡',
       'JP日本',
-      '直连',
       ...(otherNodes.size ? ['其他节点'] : [])
     ],
     icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Proxy.png'
@@ -169,7 +167,6 @@ function main(config) {
     });
   }
 
-  config.proxies.push({ name: '直连', type: 'direct', udp: true });
   config['proxy-groups'] = proxyGroups;
   config.rules = STATIC_CONFIGS.defaultRules;
 
