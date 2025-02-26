@@ -15,7 +15,7 @@ const STATIC_CONFIGS = {
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
     'nameserver-policy': {
-      'geosite:cn': ['https://120.53.53.53/dns-query', 'https://https://223.5.5.5/dns-query'],
+      'geosite:cn': ['https://120.53.53.53/dns-query', 'https://223.5.5.5/dns-query'],
       'geosite:geolocation-!cn': ['https://8.8.8.8/dns-query', 'https://1.1.1.1/dns-query']
     },
     'default-nameserver': ['223.5.5.5', '119.29.29.29'],
