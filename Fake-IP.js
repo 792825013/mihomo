@@ -1,69 +1,49 @@
 /**
  * Clash Verge Rev / Mihomo Party 扩展脚本（优化版，主用新加坡分组，新增日本分组，VLESS 和 Hysteria2 协议，适配中国家用网络）
- * 当前日期: 2025年2月24日
+ * 当前日期: 2025年2月26日
  */
 
 /** 地区定义（仅保留新加坡和日本） */
 const REGIONS = [
   ['SG新加坡', /新加坡|🇸🇬|sg|singapore/i, 'Singapore'],
-  ['JP日本', /日本|🇯🇵|jp|japan/i, 'Japan'], // 新增日本分组
+  ['JP日本', /日本|🇯🇵|jp|japan/i, 'Japan'],
 ].map(([name, regex, icon]) => ({
   name,
   regex,
   icon: `https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/${icon}.png`
 }));
 
-/** 静态配置集合（适配中国家用网络，主用新加坡，新增日本支持） */
+/** 静态配置集合（精简版，主用新加坡，适配中国家用网络） */
 const STATIC_CONFIGS = {
   base: {
     'allow-lan': true,
-    'bind-address': '127.0.0.1',
     mode: 'rule',
-    profile: { 'store-selected': true },
-    'unified-delay': true,
     'tcp-concurrent': true,
-    'keep-alive-interval': 300,
-    'find-process-mode': 'strict',
-    'geodata-mode': true,
-    'geodata-loader': 'standard',
     'geo-auto-update': true,
     'geo-update-interval': 168
   },
   dns: {
     enable: true,
     listen: ':1053',
-    ipv6: false,
-    'prefer-h3': true,
-    'use-hosts': true,
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
-    'fake-ip-filter': ['*', '+.lan', '+.local', '+.youku.com'],
-    nameserver: ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
-    fallback: ['tls://8.8.8.8', 'tls://1.1.1.1'],
-    'proxy-server-nameserver': ['tls://8.8.8.8', 'tls://1.1.1.1'],
+    nameserver: ['223.5.5.5', '114.114.114.114'],
+    fallback: ['tls://8.8.8.8'],
     'nameserver-policy': {
-      'geosite:private': 'system',
-      'geosite:cn': ['223.5.5.5', '119.29.29.29', '114.114.114.114'],
-      'geosite:geolocation-!cn': ['tls://8.8.8.8', 'tls://1.1.1.1']
+      'geosite:cn': ['223.5.5.5', '114.114.114.114'],
+      'geosite:geolocation-!cn': ['tls://8.8.8.8']
     }
-  },
-  sniffer: {
-    enable: false
   },
   proxyGroupDefault: {
     interval: 300,
     timeout: 3000,
     url: 'http://www.gstatic.com/generate_204',
-    'fallback-url': 'http://www.baidu.com',
-    lazy: true,
-    'max-failed-times': 3
+    lazy: true
   },
-  defaultRules: [
-    'GEOSITE,private,DIRECT',
-    'GEOIP,private,DIRECT,no-resolve',
+  rules: [
     'GEOSITE,cn,DIRECT',
     'GEOIP,cn,DIRECT,no-resolve',
-    'MATCH,GLOBAL' // 修正为匹配 GLOBAL 分组
+    'MATCH,GLOBAL'
   ],
   geoxUrl: {
     geoip: 'https://github.com/Loyalsoldier/geoip/releases/latest/download/geoip-only-cn-private.dat',
@@ -71,104 +51,52 @@ const STATIC_CONFIGS = {
   }
 };
 
-/** 预构建地区映射表 */
-const REGION_LOOKUP = new Map(
-  REGIONS.map((region, index) => [index, {
-    ...STATIC_CONFIGS.proxyGroupDefault,
-    name: region.name,
-    type: 'url-test',
-    tolerance: 100,
-    icon: region.icon,
-    proxies: [],
-    regex: region.regex
-  }])
-);
-
-/** 正则匹配缓存 */
-const MATCH_CACHE = new Map();
-
-/**
- * 主函数：高效生成 Mihomo 兼容配置，主用新加坡分组，新增日本分组，筛选 VLESS 和 Hysteria2
- * @param {Object} config 输入配置对象
- * @returns {Object} 处理后的配置对象
- */
+/** 主函数：高效生成 Mihomo 兼容配置 */
 function main(config) {
-  if (!config || (!config.proxies?.length && !config['proxy-providers'])) {
-    throw new Error('配置文件中未找到任何代理');
-  }
-  config.proxies = config.proxies || [];
+  if (!config?.proxies?.length) throw new Error('未找到代理节点');
 
   // 筛选 VLESS 和 Hysteria2 安全节点
-  config.proxies = config.proxies.filter(proxy => {
-    const type = proxy.type.toLowerCase();
-    if (type === 'vless') {
-      return proxy.tls === true || proxy.network === 'tls';
-    } else if (type === 'hysteria2') {
-      return true;
-    }
-    return false;
-  });
+  const proxies = config.proxies.filter(p => {
+    const type = p.type.toLowerCase();
+    return (type === 'vless' && p.tls) || type === 'hysteria2';
+  }).map(p => p.name);
 
+  // 合并基础配置
   Object.assign(config, STATIC_CONFIGS.base, {
     dns: STATIC_CONFIGS.dns,
-    sniffer: STATIC_CONFIGS.sniffer,
     'geox-url': STATIC_CONFIGS.geoxUrl
   });
 
-  const proxyNames = config.proxies.map(p => p.name);
-  const otherNodes = new Set(proxyNames);
-  const regionGroups = [];
+  // 分组逻辑
+  const regionGroups = REGIONS.map(r => ({
+    ...STATIC_CONFIGS.proxyGroupDefault,
+    name: r.name,
+    type: 'url-test',
+    tolerance: 100,
+    icon: r.icon,
+    proxies: proxies.filter(name => r.regex.test(name))
+  })).filter(g => g.proxies.length);
 
-  const regionMap = new Map();
-  REGION_LOOKUP.forEach((group, key) => regionMap.set(key, { ...group, proxies: [] }));
-
-  for (const name of proxyNames) {
-    let matchedRegion = MATCH_CACHE.get(name);
-    if (!matchedRegion) {
-      for (const [_, group] of regionMap) {
-        if (group.regex.test(name)) {
-          matchedRegion = group;
-          MATCH_CACHE.set(name, group);
-          break;
-        }
-      }
-    }
-    if (matchedRegion) {
-      matchedRegion.proxies.push(name);
-      otherNodes.delete(name);
-    }
-  }
-
-  for (const [_, group] of regionMap) {
-    if (group.proxies.length) {
-      regionGroups.push(group);
-    }
-  }
-
+  const otherNodes = proxies.filter(name => !REGIONS.some(r => r.regex.test(name)));
   const proxyGroups = [{
     ...STATIC_CONFIGS.proxyGroupDefault,
     name: 'GLOBAL',
     type: 'select',
-    proxies: [
-      'SG新加坡',
-      'JP日本',
-      ...(otherNodes.size ? ['其他节点'] : [])
-    ],
+    proxies: ['SG新加坡', 'JP日本', ...(otherNodes.length ? ['其他节点'] : [])],
     icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Proxy.png'
   }, ...regionGroups];
 
-  if (otherNodes.size) {
+  if (otherNodes.length) {
     proxyGroups.push({
       ...STATIC_CONFIGS.proxyGroupDefault,
       name: '其他节点',
       type: 'select',
-      proxies: Array.from(otherNodes),
+      proxies: otherNodes,
       icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/World_Map.png'
     });
   }
 
   config['proxy-groups'] = proxyGroups;
   config.rules = STATIC_CONFIGS.defaultRules;
-
   return config;
 }
