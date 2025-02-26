@@ -15,11 +15,11 @@ const STATIC_CONFIGS = {
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
     'nameserver-policy': {
-      'geosite:cn': ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query'],
-      'geosite:geolocation-!cn': ['https://dns.cloudflare.com/dns-query', 'https://doh.dns.sb/dns-query']
+      'geosite:cn': ['https://120.53.53.53/dns-query', 'https://https://223.5.5.5/dns-query'],
+      'geosite:geolocation-!cn': ['https://8.8.8.8/dns-query', 'https://1.1.1.1/dns-query']
     },
     'default-nameserver': ['223.5.5.5', '119.29.29.29'],
-    fallback: ['tls://8.8.4.4:853', 'https://dns.cloudflare.com/dns-query'],
+    fallback: ['https://8.8.8.8/dns-query', 'https://1.1.1.1/dns-query'],
     'fallback-filter': { geoip: true, ipcidr: ['240.0.0.0/4', '0.0.0.0/32'] }
   },
   proxyGroupDefault: { interval: 300, timeout: 3000, url: 'http://www.gstatic.com/generate_204' },
