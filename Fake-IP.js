@@ -11,27 +11,25 @@ const BASE_CONFIG = {
   },
   rules: ['GEOIP,private,DIRECT,no-resolve', 'GEOSITE,cn,DIRECT', 'GEOIP,cn,DIRECT,no-resolve', 'MATCH,GLOBAL'],
   'proxy-groups': [
-    { name: 'GLOBAL', type: 'select', proxies: ['SG新加坡', 'JP日本', '其他节点'] },
-    { name: 'SG新加坡', type: 'url-test', proxies: [] },
-    { name: 'JP日本', type: 'url-test', proxies: [] },
-    { name: '其他节点', type: 'select', proxies: [] }
+    { name: 'GLOBAL', type: 'select', proxies: ['SG new Singapore', 'JP new Japan', 'other nodes'] },
+    { name: 'SG new Singapore', type: 'url-test', proxies: [] },
+    { name: 'JP new Japan', type: 'url-test', proxies: [] },
+    { name: 'other nodes', type: 'select', proxies: [] }
   ]
 };
+
+const SG_REGEX = /singapore|sg|🇸🇬/i;
+const JP_REGEX = /japan|jp|🇯🇵/i;
 
 function main(config) {
   const proxies = config.proxies;
   const groups = BASE_CONFIG['proxy-groups'];
-  const sgRegex = /新加坡|🇸🇬|sg|singapore/i;
-  const jpRegex = /日本|🇯🇵|jp|japan/i;
-  const len = proxies.length;
   let i = 0;
-
-  while (i < len) {
+  while (i < proxies.length) {
     const name = proxies[i++].name;
-    const target = sgRegex.test(name) ? groups[1].proxies : jpRegex.test(name) ? groups[2].proxies : groups[3].proxies;
-    target[target.length] = name;
+    const group = SG_REGEX.test(name) ? groups[1].proxies : JP_REGEX.test(name) ? groups[2].proxies : groups[3].proxies;
+    group[group.length] = name;
   }
-
   Object.assign(config, BASE_CONFIG);
   return config;
 }
