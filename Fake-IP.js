@@ -1,5 +1,3 @@
-const SG_REGEX = /新加坡|🇸🇬|sg|singapore/i;
-const JP_REGEX = /日本|🇯🇵|jp|japan/i;
 const BASE_CONFIG = {
   mode: 'rule',
   dns: {
@@ -23,10 +21,17 @@ const BASE_CONFIG = {
 function main(config) {
   const proxies = config.proxies;
   const groups = BASE_CONFIG['proxy-groups'];
-  for (let i = 0, len = proxies.length; i < len; i++) {
-    const name = proxies[i].name;
-    groups[SG_REGEX.test(name) ? 1 : JP_REGEX.test(name) ? 2 : 3].proxies.push(name);
+  const sgRegex = /新加坡|🇸🇬|sg|singapore/i;
+  const jpRegex = /日本|🇯🇵|jp|japan/i;
+  const len = proxies.length;
+  let i = 0;
+
+  while (i < len) {
+    const name = proxies[i++].name;
+    const target = sgRegex.test(name) ? groups[1].proxies : jpRegex.test(name) ? groups[2].proxies : groups[3].proxies;
+    target[target.length] = name;
   }
+
   Object.assign(config, BASE_CONFIG);
   return config;
 }
