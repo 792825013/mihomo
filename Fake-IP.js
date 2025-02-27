@@ -11,21 +11,20 @@ const BASE_CONFIG = {
   },
   rules: ['GEOIP,private,DIRECT,no-resolve', 'GEOSITE,cn,DIRECT', 'GEOIP,cn,DIRECT,no-resolve', 'MATCH,GLOBAL'],
   'proxy-groups': [
-    { name: 'GLOBAL', type: 'select', proxies: ['SG新加坡', 'JP日本', '其他节点'] },
+    { name: 'GLOBAL', type: 'select', proxies: ['SG新加坡', 'JP日本'] },
     { name: 'SG新加坡', type: 'url-test', proxies: [] },
-    { name: 'JP日本', type: 'url-test', proxies: [] },
-    { name: '其他节点', type: 'select', proxies: [] }
+    { name: 'JP日本', type: 'url-test', proxies: [] }
   ]
 };
 
 function main(config) {
-  const p = config.proxies, g = BASE_CONFIG['proxy-groups'], l = p.length, s = '新加坡', j = '日本';
+  const p = config.proxies, g = BASE_CONFIG['proxy-groups'], l = p.length;
+  const sg = g[1].proxies, jp = g[2].proxies;
   let i = 0;
   while (i < l) {
     const n = p[i++].name;
-    if (n.indexOf(s) > -1) g[1].proxies[g[1].proxies.length] = n;
-    else if (n.indexOf(j) > -1) g[2].proxies[g[2].proxies.length] = n;
-    else g[3].proxies[g[3].proxies.length] = n;
+    if (n.includes('新加坡')) sg[sg.length] = n;
+    else if (n.includes('日本')) jp[jp.length] = n;
   }
   Object.assign(config, BASE_CONFIG);
   return config;
