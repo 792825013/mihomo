@@ -6,8 +6,8 @@ const BASE_CONFIG = {
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16', // 防止IP冲突
     'nameserver-policy': {
-      'geosite:cn': ['https://223.5.5.5/dns-query', 'https://doh.pub/dns-query'],
-      'geosite:geolocation-!cn': ['https://1.1.1.1/dns-query', 'https://dns.google/dns-query']
+      'geosite:cn': ['https://223.5.5.5/dns-query', 'https://120.53.53.53/dns-query'],
+      'geosite:geolocation-!cn': ['https://1.1.1.1/dns-query', 'https://8.8.8.8/dns-query']
     },
     'default-nameserver': ['223.5.5.5', '119.29.29.29'] // 备用DNS
   },
