@@ -18,14 +18,13 @@ const BASE_CONFIG = {
 };
 
 function main(config) {
-  const p = config.proxies, g = BASE_CONFIG['proxy-groups'], l = p.length;
-  const sg = g[1].proxies, jp = g[2].proxies;
-  let i = 0;
-  while (i < l) {
-    const n = p[i++].name;
-    if (n.includes('新加坡')) sg[sg.length] = n;
-    else if (n.includes('日本')) jp[jp.length] = n;
-  }
-  Object.assign(config, BASE_CONFIG);
-  return config;
+  const sgProxies = BASE_CONFIG['proxy-groups'][1].proxies;
+  const jpProxies = BASE_CONFIG['proxy-groups'][2].proxies;
+
+  config.proxies.forEach(({ name }) => {
+    if (name.includes('新加坡') || name.includes('🇸🇬')) sgProxies.push(name);
+    else if (name.includes('日本') || name.includes('🇯🇵')) jpProxies.push(name);
+  });
+
+  return { ...config, ...BASE_CONFIG };
 }
