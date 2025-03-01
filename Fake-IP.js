@@ -12,11 +12,6 @@ const BASE_CONFIG = {
     },
     'default-nameserver': ['223.5.5.5'] // 单一备用 DNS
   },
-  tun: { // 可选 TUN 模式配置
-    enable: true, // 启用 TUN（若不使用可设为 false）
-    stack: 'system', // 系统网络栈
-    'dns-hijack': ['any:53'] // 劫持所有 DNS 请求
-  },
   rules: [
     'GEOIP,private,DIRECT,no-resolve', // 私有网络直连
     'GEOSITE,cn,DIRECT', // 国内网站直连
