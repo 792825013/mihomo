@@ -1,17 +1,19 @@
 const BASE_CONFIG = {
   mode: 'rule',
-  'mixed-port': 7890, // 系统代理端口
+  'mixed-port': 7890,
   dns: {
     enable: true,
     listen: '0.0.0.0:53',
     'enhanced-mode': 'fake-ip',
     'fake-ip-range': '198.18.0.1/16',
     'fake-ip-filter': ['*.lan', '*.localdomain', '+.home.arpa'],
+    'dns-cache': true,
+    'dns-cache-ttl': 3600, // 缓存 1 小时
     'nameserver-policy': {
-      'geosite:cn': ['https://223.5.5.5/dns-query'], // 精简国内 DNS
-      'geosite:geolocation-!cn': ['https://1.1.1.1/dns-query']
+      'geosite:cn': ['tls://223.5.5.5:853'], // 国内 DoT
+      'geosite:geolocation-!cn': ['tls://1.1.1.1:853'] // 国外 DoT
     },
-    'default-nameserver': ['1.1.1.1']
+    'default-nameserver': ['tls://1.1.1.1:853'] // 备用 DoT
   },
   rules: [
     'GEOIP,private,DIRECT,no-resolve',
