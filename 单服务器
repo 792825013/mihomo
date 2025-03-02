@@ -1,0 +1,40 @@
+const BASE_CONFIG = {
+  mode: 'rule',
+  'mixed-port': 7890,
+  dns: {
+    enable: true,
+    listen: '0.0.0.0:53',
+    'enhanced-mode': 'fake-ip',
+    'fake-ip-range': '198.18.0.1/16',
+    'fake-ip-filter': ['*.lan', '*.localdomain', '+.home.arpa'],
+    'nameserver-policy': {
+      'geosite:cn': ['tls://223.5.5.5:853'], // 国内 DoT
+      'geosite:geolocation-!cn': ['tls://1.1.1.1:853'] // 国外 DoT
+    }
+  },
+  proxies: [
+    {
+      name: 'AWS日本东京-hy2',
+      type: 'hysteria2',
+      server: '35.78.120.6',
+      port: 35000,
+      password: '51f6f2c7-79b6-415d-8ea7-4a4eeadc6bf4'
+    }
+  ],
+  rules: [
+    'GEOIP,private,DIRECT,no-resolve',
+    'GEOSITE,cn,DIRECT',
+    'MATCH,MyServer' // 直接指定单一服务器
+  ],
+  'proxy-groups': [
+    {
+      name: 'MyServer',
+      type: 'select', // 单一节点用 select，手动指定
+      proxies: ['MyServer']
+    }
+  ]
+};
+
+function main(config) {
+  return { ...config, ...BASE_CONFIG };
+}
