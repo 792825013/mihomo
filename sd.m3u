@@ -1,6 +1,4 @@
 #EXTM3U
-#EXTINF:-1 ,#genre# ======
-http://0/0.m3u8
 #EXTINF:-1 ,CCTV-1
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000311/index.m3u8
 #EXTINF:-1 ,CCTV-2
@@ -53,8 +51,6 @@ http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000355/index.m3u8
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000356/index.m3u8
 #EXTINF:-1 ,CGTN俄语
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000357/index.m3u8
-#EXTINF:-1 ,#genre# ======
-http://1/1.m3u8
 #EXTINF:-1 ,湖南卫视
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000324/index.m3u8
 #EXTINF:-1 ,湖北卫视
@@ -149,8 +145,7 @@ http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL40000008/index.m3u8
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL40000009/index.m3u8
 #EXTINF:-1 ,四川卫视4K
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL40000010/index.m3u8
-#EXTINF:-1 ,#genre# ======
-http://2/2.m3u8
+
 #EXTINF:-1 ,山东齐鲁
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000313/index.m3u8
 #EXTINF:-1 ,山东卫视
@@ -171,8 +166,7 @@ http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000340/index.m3u8
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000315/index.m3u8
 #EXTINF:-1 ,山东教育卫视
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000331/index.m3u8
-#EXTINF:-1 ,#genre# ======
-http://3/3.m3u8
+
 #EXTINF:-1 ,泰安综合
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000269/index.m3u8
 #EXTINF:-1 ,泰安公共
@@ -462,7 +456,7 @@ http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00001115/index.m3u8
 #EXTINF:-1 ,汶上综合
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00001116/index.m3u8
 #EXTINF:-1 ,#genre# ======
-http://4/4.m3u8
+
 #EXTINF:-1 ,中国交通
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00000073/index.m3u8
 #EXTINF:-1 ,CETV1
@@ -534,7 +528,7 @@ http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00002030/index.m3u8
 #EXTINF:-1 ,重温经典影视
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL20000003/index.m3u8
 #EXTINF:-1 ,#genre# ======
-http://5/5.m3u8
+
 #EXTINF:-1 ,山东经济广播
 http://ucdn.sd.chinamobile.com:8089/00/SNM/CHANNEL00003001/index.m3u8
 #EXTINF:-1 ,山东交通广播
